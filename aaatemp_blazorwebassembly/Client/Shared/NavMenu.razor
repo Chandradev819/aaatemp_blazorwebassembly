@@ -1,0 +1,93 @@
+﻿@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject HttpClient Http
+
+<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">aaatemp_blazorwebassembly</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+@if (navBarMenuItems == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+        <ul class="nav flex-column">
+            @foreach (NavBarMenuItem mm in navBarMenuItems)
+            {
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="@mm.MenuURL" Match="NavLinkMatch.All">
+                        <span class="oi oi-home" aria-hidden="true"></span> @mm.MenuDisplayName
+                    </NavLink>
+                </li>
+                @if (mm.ChildItems != null)
+                {
+                    @foreach (NavBarMenuItem mm1 in mm.ChildItems)
+                    {
+                        <li class="nav-item px-3">
+                            <NavLink class="nav-link" href="@mm1.MenuURL" Match="NavLinkMatch.All">
+                                <span class="oi oi-home" aria-hidden="true"></span> --@mm1.MenuDisplayName
+                            </NavLink>
+                        </li>
+
+                        @if (mm1.ChildItems != null)
+                        {
+                            @foreach (NavBarMenuItem mm2 in mm1.ChildItems)
+                            {
+                                <li class="nav-item px-3">
+                                    <NavLink class="nav-link" href="@mm2.MenuURL" Match="NavLinkMatch.All">
+                                        <span class="oi oi-home" aria-hidden="true"></span> ----@mm2.MenuDisplayName
+                                    </NavLink>
+                                </li>
+                            }
+                        }
+                    }
+                }
+            }
+            @*<li class="nav-item px-3">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span class="oi oi-home" aria-hidden="true"></span> Home
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="counter">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Counter
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="fetchdata">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+                    </NavLink>
+                </li>*@
+        </ul>
+    </div>
+}
+@code {
+
+    private NavBarMenuItem[] navBarMenuItems;
+
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        navBarMenuItems = await Http.GetFromJsonAsync<NavBarMenuItem[]>("NavBarMenu");
+
+        //try
+        //{
+        //    navBarMenuItems = await Http.GetFromJsonAsync<NavBarMenuItem[]>("NavBarMenu");
+        //}
+        //catch (AccessTokenNotAvailableException exception)
+        //{
+        //    //exception.Redirect();
+        //}
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}
